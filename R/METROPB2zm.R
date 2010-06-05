@@ -97,12 +97,12 @@ METROPB2zm <- function (NUpd, burnin, lag, initial, priors, S, v,
       mat <- matrix(c(samp.values[pos,4], samp.values[pos,6], 
             samp.values[pos,6], samp.values[pos,5]),2,2)
 
-      L <- chol(mat)
+      U <- chol(mat)
 
-      initial[4] <- L[1]
-      initial[5] <- L[4]
+      initial[4] <- U[1]
+      initial[5] <- U[4]
 
-      if(!indep){initial[6] <- L[3]}
+      if(!indep){initial[6] <- U[3]}
 
       sv_transformed <- matrix(0, m, dim)
 

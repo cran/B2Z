@@ -144,7 +144,7 @@ In the Examples section, \code{NUpd} and \code{m} are small just for a quick dem
 Joao Vitor Dias Monteiro, Sudipto Banerjee and Gurumurthy Ramachandran.
 }
 \seealso{
-\code{\link{B2Z}, \link{B2ZM}, \link{B2ZM_IMIS},\link{B2ZM_GIBBS},\link{B2ZM_SIR} }
+\code{\link{B2Z}, \link{B2ZM}, \link{B2ZM_BCLT}, \link{B2ZM_IMIS},\link{B2ZM_GIBBS},\link{B2ZM_SIR} }
 }
 \examples{
 

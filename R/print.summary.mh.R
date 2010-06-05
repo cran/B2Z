@@ -1,9 +1,11 @@
 print.summary.mh <-
 function(x, digits = max(options()$digits - 4, 3),...)
   {
-  cat("\nPosterior Summary Statistics: \n")
+  cat("\nPosterior Summaries: \n")
   print(x$summary, digits = digits)
  
+  cat("\nNote: GSD is the geometric standard deviation, i.e., GSD(x) = exp(sqrt(x))\n\n")
+
   cat("\nPosterior Covariance Matrix: \n")
   print(x$PostCovMat, digits = digits)
 

@@ -37,7 +37,7 @@ if(object$indep)
   colnames(initial)<-colnames(ESS) <-  c("Beta", "Q", "G", "Tau_N", "Tau_F")
   colnames(Sigma.Cand) <- rownames(Sigma.Cand) <- c("log(Beta)", "log(Q)", "log(G)", "l1", "l2")
 
- rownames(suma) <- c("Beta", "Q", "G", "Tau_N", "Tau_F", "GSD(Tau_N)",  "GDS(Tau_F)")
+ rownames(suma) <- c("Beta", "Q", "G", "Tau_N", "Tau_F", "GSD(Tau_N)",  "GSD(Tau_F)")
 
   }
 else
@@ -48,7 +48,7 @@ else
   colnames(initial)<-colnames(ESS) <- c("Beta", "Q", "G", "Tau_N", "Tau_F", "Tau_NF")
   colnames(Sigma.Cand) <- rownames(Sigma.Cand) <- c("log(Beta)", "log(Q)", "log(G)", "l1", "l2", "l12")
 
-rownames(suma) <- c("Beta", "Q", "G", "Tau_N", "Tau_NF", "Tau_F", "GSD(Tau_N)", "GDS(Tau_F)")
+rownames(suma) <- c("Beta", "Q", "G", "Tau_N", "Tau_NF", "Tau_F", "GSD(Tau_N)", "GSD(Tau_F)")
 
   }
 

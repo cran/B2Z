@@ -1,6 +1,8 @@
-print.summary.sir <-
+print.summary.bclt <-
 function(x, digits = max(options()$digits - 4, 3),...)
   {
+  cat("\n\nResults using Bayesian Central Limit Theorem(BCLT)\n\n")
+
   cat("\nPosterior Summaries: \n")
   print(x$summary, digits = digits)
 
@@ -20,16 +22,6 @@ function(x, digits = max(options()$digits - 4, 3),...)
   cat("DIC: ")
   dput(round(x$DIC,digits))
 
-  cat("\n\nSampler used: SIR")
-  cat("\n-----------------\n")
-  cat("\nEffective Sample Size (ESS):")
-  dput(round(x$ESS,digits))
 
-  cat("\nMaximum importance weight: ")
-  dput(x$maxw)
-
-  cat("\nProportion of unique points sampled: ")
-  dput(x$prop)
-  
   }
 

@@ -1,20 +1,18 @@
-\name{B2ZM_SIR}
-\alias{B2ZM_SIR}
-\title{Bayesian Two-Zone Models: using SIR sampler}
+\name{B2ZM_BCLT}
+\alias{B2ZM_BCLT}
+\title{Bayesian Two-Zone Models: using Bayesian Central Limit Theorem (BCLT) - Laplace Approximation }
 \description{
-\code{B2ZM_SIR} obtains random samples from the posterior distribution of the parameters and exposure concentrations for the Bayesian two-zone model proposed by Zhang et al. (2009) using Sampling Importance Resampling (SIR). The user can choose whether the near and far field measurement error processes are dependent or not. In the independent model, 5 parameters are considered: 1) Beta: Interzonal air flow rate; 2) Q: supply and exhaust flow rate; 3) G: contaminant emission rate; 4) Tau_N: variance of the measurement error at the near field; 5)Tau_F; variance of the measurement error at the far field. In the dependent model (default), one more parameter is considered: 6) Tau_NF: covariance between the measurements at the near and far field.  
-Several prior distributions for Beta, Q and G are available. In the independent model, the prior distributions for Tau_N and Tau_F are inverse gamma distributions; in the dependent model, the prior joint distribution of Tau_N, Tau_NF and Tau_F is the Inverse Wishart Distribution (see the Details section for more information on the parameterization of these distributions). The output from \code{B2ZM_SIR} is a list that belongs to the class \code{sir}.  This output is valid as an input for the functions \code{summary} and \code{plot}.
+\code{B2ZM_BCLT} obtains random samples from the posterior distribution of the parameters and exposure concentrations for the Bayesian two-zone model proposed by Zhang et al. (2009) using the Bayesian Central Limit Theorem (Laplace Approximation). The user can choose whether the near and far field measurement error processes are independent or not. In the independent model, 5 parameters are considered: 1) Beta: Interzonal air flow rate; 2) Q: supply and exhaust flow rate; 3) G: contaminant emission rate; 4) Tau_N: variance of the measurement error at the near field; 5)Tau_F; variance of the measurement error at the far field. In the dependent model (default), one more parameter is considered: 6) Tau_NF: covariance between the measurements at the near and far field.  
+Several prior distributions for Beta, Q and G are available. In the independent model, the prior distributions for Tau_N and Tau_F are inverse gamma distributions; in the dependent model, the prior joint distribution of Tau_N, Tau_NF and Tau_F is the Inverse Wishart Distribution (see the Details section for more information on the parameterization of these distributions). The output from \code{B2ZM_BCLT} is a list that belongs to the class \code{bclt}.  This output is valid as an input for the functions \code{summary} and \code{plot}.
 }
 \usage{
 
-B2ZM_SIR(func = func_default, y0=y0, data, 
-        priorBeta, priorQ, priorG, 
-        v, S, tauN.sh, tauN.sc,
-        tauF.sh, tauF.sc,  V_N,
-        V_F, indep.model = FALSE, 
-        credibility = 95,  m=10000, 
-        figures = list(save = FALSE, type =c("ps", 
-        "eps","pdf", "png", "jpg"))) 
+B2ZM_BCLT(func = func_default, y0, data = NULL, priorBeta, 
+                 priorQ, priorG, v, S, tauN.sh, tauN.sc,
+                 tauF.sh, tauF.sc,  V_N, V_F, indep.model = FALSE,  
+                 credibility = 95,  m = 7000, sample_size=2000, 
+                 figures = list(save = FALSE, type =c("ps", 
+                 "eps","pdf", "png", "jpg"))) 
 }
 \arguments{
 \item{func}{
@@ -67,10 +65,11 @@ A logical value indicating whether the independent model should be considered. T
   \item{credibility}{
 A scalar between 0 and 100 indicating the credibility level for the  posterior intervals of the parameters.
 }
-\item{m}{Number of samplings. The default is 50,000.}
+\item{m}{Number of sampling values from the prior distribution used to estimate a good starting value that is used in the estimation of the posterior mode and covariance matrix. See the Details section for more information.}
+\item{sample_size}{Size of the sample from the posterior distribution of the parameters in model.}
  \item{figures}{
  The command \code{plot(obj)} produces several plots, where 
-\code{obj} is the output from \code{B2ZM_SIR}. Using \code{figures}, those plots are built internally and saved as eps, pdf, ps, png or jpg format. \code{figures} is a list containing the following parameters:
+\code{obj} is the output from \code{B2ZM_BCLT}. Using \code{figures}, those plots are built internally and saved as eps, pdf, ps, png or jpg format. \code{figures} is a list containing the following parameters:
 \describe{\item{\code{save}:}{a logical value indicating that the figures are to be saved. The default is FALSE.}
 \item{\code{type}:}{a string that indicates the image file type. The default is "ps".}}
 }
@@ -90,9 +89,14 @@ where, Beta, V_N, V_F, Q and G are represented by \code{parms[1]}, \code{parms[2
 
 
 Parameterization priors:  The inverse gamma distribution with shape \emph{a} and scale \emph{b}  has mean \emph{b/(a-1)} (\emph{a}>1)  and variance \emph{(b^2)/((a-1)^2(a-2))} (\emph{a>2}). The inverse Wishart with \emph{v} degrees of freedom and scalar matrix \emph{S} has mean \emph{S/(v-p-1)}, where \emph{p} is the number of rows of \emph{S}.   
+
+
+Covariance Matrix estimation: The covariance matrix is estimated as the negative inverse of the hessian matrix of the log posterior distribution at the estimated posterior mode. To estimate the posterior mode, the function \code{nlminb} is used. The values of the estimated posterior mode depends on the starting parameter values. \code{m} is the number of sampling values from the prior distributions of Beta, Q and G. The vector (among the m sampled) with largest likelihood value is used as starting parameter values. 
+  
+The covariance matrix is estimated using the function \code{hessian} from the package \code{numDeriv}, where the parameter vector is the estimated posterior mode. 
 }
 \value{
-\code{B2ZM_SIR} returns a list that belongs to the class \code{sir}. The output from \code{B2ZM_SIR} contains the objects:
+\code{B2ZM_BCLT} returns a list that belongs to the class \code{bclt}. The output from \code{B2ZM_BCLT} contains the objects:
 \item{Beta}{a vector containing the sampled values from the joint posterior distribution for the parameter Beta.}
 \item{Q}{a vector containing the sampled values from the joint posterior distribution for the parameter Q.}
 \item{G}{a vector containing the sampled values from the joint posterior distribution for the parameter G.}
@@ -105,19 +109,15 @@ Parameterization priors:  The inverse gamma distribution with shape \emph{a} and
 \item{DIC}{deviance information criterion.}
 \item{pD}{effective number of parameters.}
 \item{Dbar}{Deviance expectation.}
-\item{ESS}{effective sample size.}
 \item{indep}{a logical value indicating whether the independent model was used.}
 \item{y0}{a vector containing the initial concentrations for both zones.}
 \item{times}{a vector containing the times when the observed concentrations were measured.}
 \item{cred}{credibility of the posterior intervals.}
-\item{prop}{proportion of different points in the sampled values from the joint posterior distribution.}
-\item{weigths}{weights used in the SIR method.}
-\item{maxw}{maximum weight used in the SIR method.}
  
-Methods defined for B2ZM_SIR object are \code{summary} and \code{plot}. 
+Methods defined for B2ZM_BCLT object are \code{summary} and \code{plot}. 
 }
 \references{
-
+   
 Zhang, Y., Banerjee, S., Yang,R., Lungu,C. and Ramachandran, G. (2009).  Bayesian Modeling of Exposure and Airflow Using Two-Zone Models. \emph{The Annals of Occupational Hygiene},
 \bold{53}, 409-424. \url{ http://www.biostat.umn.edu/~sudiptob/ResearchPapers/ZBYLR.pdf}   
 
@@ -126,60 +126,43 @@ Zhang, Y., Banerjee, S., Yang,R., Lungu,C. and Ramachandran, G. (2009).  Bayesia
 Joao Vitor Dias Monteiro, Sudipto Banerjee and Gurumurthy Ramachandran.
 }
 \seealso{
-\code{\link{B2Z}, \link{B2ZM}, \link{B2ZM_BCLT}, \link{B2ZM_IMIS}, \link{B2ZM_GIBBS}, \link{B2ZM_METROP} }
-}
-\note{
-In the Examples section, \code{m} is small just for a quick demonstration. We suggest that \code{m} be greater than 15,000.
+\code{\link{B2Z}, \link{B2ZM}, \link{B2ZM_IMIS},\link{B2ZM_GIBBS}, \link{B2ZM_METROP}, \link{B2ZM_SIR} }
 }
 \examples{
-##################
-#Dependent Model#
-################
+#####################
+#Independent Model #
+###################
 
-#Data 1:  100 simulated concentrations during the times 
-#between 0 and 4, using the parameters Beta = 5, Q = 13.8,
-#G = 351.5, VN = pi*10^-3, VF = 3.8, Tau_N = 1, 
-#Tau_NF = 0.5 and Tau_F = 0.64. 
+#Data 1:  100 simulated concentrations during the times between 0 and 4, using the parameters Beta = 5, Q = 13.8, G = 351.5, VN = pi*10^-3 
+#VF = 3.8, Tau_N = 1, Tau_NF = 0.5 and Tau_F = 0.64. 
+\dontrun{
 
 data(ex1)
 
-r <- B2ZM_SIR(data = ex1, y0 = c(0,0), priorBeta = "unif(0,10)",   
-     priorQ="unif(11,17)", priorG = "unif(281,482)", S = diag(10,2), 
-     v = 4, V_N = pi*10^-3, V_F = 3.8, m = 100 )
+r <- B2ZM_BCLT(data = ex1, y0 = c(0,0), priorBeta = "unif(0,10)", 	priorQ="unif(11,17)", priorG = "unif(281,482)", S = diag(10,2), 
+      v = 4, V_N = pi*10^-3, V_F = 3.8, m = 7000, sample_size=2000)
 
-#plot(r)
-#summary(r)
 
-#Saving figures with .png extension
-\dontrun{
-r <- B2ZM_SIR(data = ex1, y0 = c(0,0), priorBeta = "unif(0,10)",    
-     priorQ = "unif(11,17)", priorG = "unif(281,482)", 
-     S = diag(10,2), v = 4, V_N = pi*10^-3, V_F = 3.8, 
-     m = 10000, figures = list(save = TRUE, type ="png"))
-}
+summary(r)
+plot(r)
 
 
 #####################
 #Independent Model #
 ###################
 
-#Data 2:  100 simulated concentrations during the times 
-#between 0 and 4, using the parameters Beta = 5, Q = 13.8,
-#G = 351.5, VN = pi*10^-3, VF = 3.8, Tau_N = 1, 
-#Tau_NF = 0 and Tau_F = 0.64. 
+#Data 2:  100 simulated concentrations during the times between 0 and 4, using the parameters Beta = 5, Q = 13.8, G = 351.5, VN = pi*10^-3 
+#VF = 3.8, Tau_N = 1, Tau_NF = 0 and Tau_F = 0.64. 
 
-\dontrun{
 data(ex2)
 
-r <- B2ZM_SIR(data = ex2, y0 = c(0,0), indep.model = TRUE, 
-     priorBeta = "unif(0,10)", priorQ="unif(11,17)", 
-     priorG = "unif(281,482)", tauN.sh = 5 , tauN.sc = 4 , 
-     tauF.sh = 5, tauF.sc = 7 , V_N = pi*10^-3, 
-     V_F = 3.8, m = 100)
 
-plot(r)
+r <- B2ZM_BCLT(data = ex2, y0 = c(0,0), priorBeta = "unif(0,10)", 	priorQ="unif(11,17)", 
+               priorG = "unif(281,482)", tauN.sh = 5 , tauN.sc = 4 , tauF.sh = 5, tauF.sc = 7, V_N = pi*10^-3, 
+               V_F = 3.8, indep.model = TRUE, m = 7000, sample_size=2000)
+
 summary(r)
+plot(r)
 }
-
 }
 \keyword{models}

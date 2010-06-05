@@ -4,14 +4,16 @@
   Bayesian Two-Zone Models
 }
 \description{
-\code{B2ZM} obtains random samples from the posterior distribution of parameters and exposure concentrations for the Bayesian two-zone model proposed by Zhang et al. (2009). Four sample methods are available: Metropolis, Gibbs with Metropolis step, Incremental Mixture Importance Sampling (IMIS), and Sampling Importance Resampling (SIR). The user can choose whether the near and far field measurement error processes are dependent or not. In the independent model, 5 parameters are considered: 1) Beta: Interzonal air flow rate; 2) Q: supply and exhaust flow rate; 3) G: contaminant emission rate; 4) Tau_N: variance of the measurement error at the near field; 5)Tau_F; variance of the measurement error at the far field. In the dependent model (default), one more parameter is considered: 6) Tau_NF: covariance between the measurements at the near and far field.  Any prior distribution for Beta, Q and G can be chosen. In the independent model, the prior distributions for Tau_N and Tau_F are inverse gamma distributions; in the dependent model, the prior joint distribution of Tau_N, Tau_NF and Tau_F is the Inverse Wishart Distribution (see the Details section for more information on the parameterization of these distributions). The output from \code{B2ZM} is a list that belongs to one of the following classes: \code{metrop}, \code{gibbs}, \code{imis} and \code{sir}.  This output is valid as an input for the functions \code{summary} and \code{plot}.
+\code{B2ZM} obtains random samples from the posterior distribution of parameters and exposure concentrations for the Bayesian two-zone model proposed by Zhang et al. (2009). Four sample methods are available: Metropolis, Gibbs with Metropolis step, Incremental Mixture Importance Sampling (IMIS), and Sampling Importance Resampling (SIR). In addition, 
+estimation using the Bayesian central limit theorem (Laplace approximation) is also available. The user can choose whether the near and far field measurement error processes are dependent or not. In the independent model, 5 parameters are considered: 1) Beta: Interzonal air flow rate; 2) Q: supply and exhaust flow rate; 3) G: contaminant emission rate; 4) Tau_N: variance of the measurement error at the near field; 5)Tau_F; variance of the measurement error at the far field. In the dependent model (default), one more parameter is considered: 6) Tau_NF: covariance between the measurements at the near and far field.  Any prior distribution for Beta, Q and G can be chosen. In the independent model, the prior distributions for Tau_N and Tau_F are inverse gamma distributions; in the dependent model, the prior joint distribution of Tau_N, Tau_NF and Tau_F is the Inverse Wishart Distribution (see the Details section for more information on the parameterization of these distributions). The output from \code{B2ZM} is a list that belongs to one of the following classes: \code{metrop}, \code{gibbs}, \code{imis} and \code{sir}.  This output is valid as an input for the functions \code{summary} and \code{plot}. 
 }
 \usage{
 B2ZM(func = func_default, y0 = c(0,0), data = NULL, 
      priorBeta, priorQ, priorG, v, S, tauN.sh, tauN.sc,
      tauF.sh, tauF.sc,  V_N, V_F, indep.model = FALSE, 
-     credibility = 95, sampler = c("IMIS", "METROP", "GIBBS", "SIR"),
+     credibility = 95, sampler = c("IMIS", "METROP", "GIBBS", "SIR", "BCLT"),
      sir.control = list(m=50000),
+     bclt.control = list(m = 7000, sample_size = 2000),
      metrop.control = list(NUpd = 10000, burnin = 1000, lag = 1,   
      initial=NULL, Sigma.Cand=NULL, m=5000),
      imis.control = list(N0=6000, B=600, M=3000, it.max=12),
@@ -81,6 +83,17 @@ B2ZM(func = func_default, y0 = c(0,0), data = NULL,
             }
          }
       }
+ \item{bclt.control}{
+   	A list containing the BCLT specifications:
+ 	\describe{ 
+	   \item{\code{m}:}{
+		Number of sampling values from the prior distribution used to estimate a good starting value that is used in the estimation of the posterior mode and covariance matrix. See the Details section for more information.
+            }
+	   \item{\code{sample_size}:}{
+Size of the sample from the posterior distribution of the parameters in model.            }
+
+         }
+      }
   \item{metrop.control}{
    	A list containing the Metropolis sampler specifications:
    	\describe{
@@ -121,7 +134,7 @@ For details see Raftery and Bao (2009).}
    \item{\code{burnin}:}{Period of burn-in. The default is 1,000.}
    \item{\code{lag}:}{Thin interval. The default is 1.}
    \item{\code{initial}:}{A vector containing the initial values for the parameters: Beta, Q and G (exactly in this order).}
-\item{\code{Sigma.Cand}:}{A 3x3 covariance matrix for the normal multivariate proposal distribution of log(Beta), log(Q) and log(G). The default is NULL, and in this case, the covariance matrix used is the negative inverse of the hessian matrix of the log posterior distribution at the estimated mode posterior.}
+\item{\code{Sigma.Cand}:}{A 3x3 covariance matrix for the normal multivariate proposal distribution of log(Beta), log(Q) and log(G). The default is NULL, and in this case, the covariance matrix used is the negative inverse of the hessian matrix of the log posterior distribution at the estimated posterior mode.}
 \item{\code{m}:}{Number of sampling values from the prior distribution used to estimate a good starting value that is used in the estimation of \code{Sigma.Cand}. It is used only if \code{Sigma.Cand} is not declared. See the Details section for more information.}}
 }
  \item{figures}{
@@ -148,10 +161,12 @@ where, Beta, V_N, V_F, Q and G are represented by \code{parms[1]}, \code{parms[2
 Parameterization priors:  The inverse gamma and inverse Wishart distributions used in  \code{B2ZM} are from the package \code{MCMCpack}.  The inverse gamma distribution with shape \emph{a} and scale \emph{b}  has mean \emph{b/(a-1)} (\emph{a}>1)  and variance \emph{(b^2)/((a-1)^2(a-2))} (\emph{a>2}). The inverse Wishart with \emph{v} degrees of freedom and scalar matrix \emph{S} has mean \emph{S/(v-p-1)}, where \emph{p} is the number of rows of \emph{S}.   
 
 
-Covariance Matrix for the proposal distribution: If the covariance matrix for the multivariate normal poposal distribution is NULL for the Metropolis sampler the covariance matrix used is the negative inverse of the hessian matrix of the log posterior distribution at the estimated mode posterior. To estimate the mode posterior, the function \code{nlm} is used. The values of the estimated posterior mode depends on the starting parameter values. \code{m} is the number of sampling values from the prior distributions of Beta, Q and G. The vector (among the m sampled) with largest likelihood value is used as starting parameter values. 
+Covariance Matrix for the proposal distribution: If the covariance matrix for the multivariate normal poposal distribution is NULL for the Metropolis sampler the covariance matrix used is the negative inverse of the hessian matrix of the log posterior distribution at the estimated posterior mode. To estimate the posterior mode, the function \code{nlm} is used. The values of the estimated posterior mode depends on the starting parameter values. \code{m} is the number of sampling values from the prior distributions of Beta, Q and G. The vector (among the m sampled) with largest likelihood value is used as starting parameter values. 
   
 The covariance matrix is estimated using the function \code{hessian} from the package \code{numDeriv}, where the parameter vector is 
 the estimated posterior mode. 
+
+Covariance Matrix estimation using BCLT: The covariance matrix is estimated as the negative inverse of the hessian matrix of the log posterior distribution at the estimated posterior mode. To estimate the posterior mode, the function \code{nlminb} is used. The values of the estimated posterior mode depends on the starting parameter values. \code{m} is the number of sampling values from the prior distributions of Beta, Q and G. The vector (among the m sampled) with largest likelihood value is used as starting parameter values. 
 
 }
 \value{
@@ -200,7 +215,7 @@ Raftery, A. E. and Bao, L. (2009).   Estimating and Projecting Trends in HIV/AID
 Joao Vitor Dias Monteiro, Sudipto Banerjee and Gurumurthy Ramachandran.
 }
 \seealso{
-\code{\link{B2Z}, \link{B2ZM_GIBBS}, \link{B2ZM_IMIS}, \link{B2ZM_METROP}, \link{B2ZM_SIR} }
+\code{\link{B2Z}, \link{B2ZM_GIBBS}, \link{B2ZM_BCLT}, \link{B2ZM_IMIS}, \link{B2ZM_METROP}, \link{B2ZM_SIR} }
 }
 \examples{
 
@@ -214,6 +229,20 @@ Joao Vitor Dias Monteiro, Sudipto Banerjee and Gurumurthy Ramachandran.
 #Tau_NF = 0.5 and Tau_F = 0.64. 
 \dontrun{
 data(ex1)
+
+#######
+#BCLT#
+#####
+
+r <- B2ZM(data = ex1, y0 = c(0,0), priorBeta = "unif(0,10)", 	
+         priorQ="unif(11,17)", priorG = "unif(281,482)", S = diag(10,2),  
+         v = 4, V_N = pi*10^-3, V_F = 3.8, sampler = "BCLT", 
+         bclt.control=list( m = 7000, sample_size=2000))
+
+
+summary(r)
+plot(r)
+
 
 ########
 #GIBBS#
@@ -279,6 +308,21 @@ summary(r)
 #Tau_NF = 0 and Tau_F = 0.64. 
 
 data(ex2)
+
+#######
+#BCLT#
+#####
+
+r <- B2ZM(data = ex2, y0 = c(0,0), priorBeta = "unif(0,10)", 	
+     priorQ="unif(11,17)", priorG = "unif(281,482)", 
+     tauN.sh = 5 , tauN.sc = 4 , tauF.sh = 5, tauF.sc = 7, 
+     V_N = pi*10^-3,  V_F = 3.8, sampler = "BCLT", 
+     indep.model = TRUE, bclt.control=list(m = 7000,  
+     sample_size=2000))
+
+summary(r)
+plot(r)
+
 
 ########
 #GIBBS#

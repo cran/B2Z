@@ -4,8 +4,9 @@ function(func = func_default, y0 = c(0,0), data = NULL, priorBeta,
                  v, S, tauN.sh, tauN.sc,
                  tauF.sh, tauF.sc,  V_N,
                  V_F, indep.model = FALSE, credibility = 95,
-                 sampler = c("IMIS", "METROP", "GIBBS", "SIR"),
+                 sampler = c("IMIS", "METROP", "GIBBS", "SIR", "BCLT"),
                  sir.control = list(m=50000),
+                 bclt.control = list(m=7000, sample_size= 2000),
                  metrop.control = list(NUpd = 10000, burnin = 1000, 
                  lag = 1, initial=NULL, Sigma.Cand=NULL, m=5000),
                  imis.control = list(N0=6000, B=600, M=3000, it.max=12),
@@ -250,6 +251,29 @@ function(func = func_default, y0 = c(0,0), data = NULL, priorBeta,
                V_N, V_F, func, y0, times, Y, indep, 
                Sigma.Cand, m, cred, indBeta, aBeta, bBeta,
                indQ, aQ, bQ, indG, aG, bG)
+
+        }
+
+
+if(sampler=="BCLT")
+       {
+
+       if(is.null(bclt.control$m)){stop("object 'm' not found")}
+        if(bclt.control$m <= 0){stop("object 'm' must be greater than 0")}
+        if(!is.numeric(bclt.control$m)){stop("object 'm' must be numeric")}
+
+if(is.null(bclt.control$sample_size)){stop("object 'sample_size' not found")}
+        if(bclt.control$sample_size <= 0){stop("object 'sample_size' must be greater than 0")}
+        if(!is.numeric(bclt.control$sample_size)){stop("object 'sample_size' must be numeric")}
+       
+
+        m <- as.integer(bclt.control$m)
+        sample_size <- bclt.control$sample_size
+        ans <- BCLTB2zm(priors, S, v, 
+                tauN.sh, tauN.sc, tauF.sh, tauF.sc, V_N, 
+                  V_F, func, y0, times, Y, indep, m,         
+                  cred, indBeta, aBeta, bBeta,
+                  indQ, aQ, bQ, indG, aG, bG, sample_size)
 
         }
 

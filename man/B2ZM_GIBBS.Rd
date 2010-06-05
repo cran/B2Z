@@ -70,7 +70,7 @@ A scalar between 0 and 100 indicating the credibility level for the  posterior i
 \item{burnin}{Period of burn-in. The default is 1,000.}
 \item{lag}{Thin interval. The default is 1.}
  \item{initial}{A vector containing the initial values for the parameters: Beta, Q and G (exactly in this order).}
-\item{Sigma.Cand}{A 3x3 covariance matrix for the normal multivariate proposal distribution of log(Beta), log(Q) and log(G). The default is NULL, and in this case, the covariance matrix used is the negative inverse of the hessian matrix of the log posterior distribution at the estimated mode posterior.}
+\item{Sigma.Cand}{A 3x3 covariance matrix for the normal multivariate proposal distribution of log(Beta), log(Q) and log(G). The default is NULL, and in this case, the covariance matrix used is the negative inverse of the hessian matrix of the log posterior distribution at the estimated posterior mode.}
 \item{m}{Number of sampling values from the prior distribution used to estimate a good starting value that is used in the estimation of \code{Sigma.Cand}. It is used only if \code{Sigma.Cand} is not declared. See the Details section for more information.}
  \item{figures}{
  The command \code{plot(obj)} produces several plots, where 
@@ -98,7 +98,7 @@ where, Beta, V_N, V_F, Q and G are represented by \code{parms[1]}, \code{parms[2
 Parameterization priors:  The inverse gamma distribution with shape \emph{a} and scale \emph{b}  has mean \emph{b/(a-1)} (\emph{a}>1)  and variance \emph{(b^2)/((a-1)^2(a-2))} (\emph{a>2}). The inverse Wishart with \emph{v} degrees of freedom and scalar matrix \emph{S} has mean \emph{S/(v-p-1)}, where \emph{p} is the number of rows of \emph{S}.   
 
 
-Covariance Matrix for the proposal distribution: If the covariance matrix for the multivariate normal poposal distribution is NULL for the Metropolis sampler the covariance matrix used is the negative inverse of the hessian matrix of the log posterior distribution at the estimated mode posterior. To estimate the mode posterior, the function \code{nlm} is used. The values of the estimated posterior mode depends on the starting parameter values. \code{m} is the number of sampling values from the prior distributions of Beta, Q and G. The vector (among the m sampled) with largest likelihood value is used as starting parameter values. 
+Covariance Matrix for the proposal distribution: If the covariance matrix for the multivariate normal poposal distribution is NULL for the Metropolis sampler the covariance matrix used is the negative inverse of the hessian matrix of the log posterior distribution at the estimated posterior mode. To estimate the posterior mode, the function \code{nlm} is used. The values of the estimated posterior mode depends on the starting parameter values. \code{m} is the number of sampling values from the prior distributions of Beta, Q and G. The vector (among the m sampled) with largest likelihood value is used as starting parameter values. 
   
 The covariance matrix is estimated using the function \code{hessian} from the package \code{numDeriv}, where the parameter vector is 
 the estimated posterior mode. 
@@ -144,9 +144,8 @@ In the Examples section, \code{NUpd} and \code{m} are small just for a quick dem
 \author{
 Joao Vitor Dias Monteiro, Sudipto Banerjee and Gurumurthy Ramachandran.
 }
-
 \seealso{
-\code{\link{B2Z}, \link{B2ZM}, \link{B2ZM_IMIS},\link{B2ZM_METROP},\link{B2ZM_SIR} }
+\code{\link{B2Z}, \link{B2ZM}, \link{B2ZM_BCLT},\link{B2ZM_IMIS},\link{B2ZM_METROP},\link{B2ZM_SIR} }
 }
 \examples{
 

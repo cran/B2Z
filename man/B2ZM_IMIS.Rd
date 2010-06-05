@@ -138,7 +138,7 @@ In the Examples section, \code{N0}, \code{B}, \code{M} and \code{it.max} are sma
 Joao Vitor Dias Monteiro, Sudipto Banerjee and Gurumurthy Ramachandran.
 }
 \seealso{
-\code{\link{B2Z}, \link{B2ZM},\link{B2ZM_GIBBS},\link{B2ZM_METROP},\link{B2ZM_SIR}} 
+\code{\link{B2Z}, \link{B2ZM},\link{B2ZM_BCLT},\link{B2ZM_GIBBS},\link{B2ZM_METROP},\link{B2ZM_SIR}} 
 }
 \examples{
 ##################

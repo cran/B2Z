@@ -8,16 +8,20 @@ export(B2ZM,
       B2ZM_SIR,
       B2ZM_IMIS,
       B2ZM_METROP,
-      B2ZM_GIBBS)
+      B2ZM_GIBBS,
+      B2ZM_BCLT)
 
+S3method(print, summary.bclt)
 S3method(print, summary.gibbs)
 S3method(print, summary.imis)
 S3method(print, summary.mh)
 S3method(print, summary.sir)
+S3method(plot, bclt)
 S3method(plot, gibbs)
 S3method(plot, imis)
 S3method(plot, sir)
 S3method(plot, metrop)
+S3method(summary, bclt)
 S3method(summary, gibbs)
 S3method(summary, imis)
 S3method(summary, sir)

@@ -11,14 +11,14 @@ cred <- object$cred
 {if(object$indep){
 suma <- t(apply(rbind(Beta,Q,G,Tau_N,Tau_F, GSDN, GSDF),1,summary.out,cred=cred))
 PostCovMat <- cov(cbind(Beta,Q,G,Tau_N,Tau_F))
- rownames(suma) <- c("Beta", "Q", "G", "Tau_N", "Tau_F", "GSD(Tau_N)",  "GDS(Tau_F)")
+ rownames(suma) <- c("Beta", "Q", "G", "Tau_N", "Tau_F", "GSD(Tau_N)",  "GSD(Tau_F)")
 
 }
 else{
 Tau_NF <- object$tauNF
 suma <- t(apply(rbind(Beta,Q,G,Tau_N,Tau_NF,Tau_F, GSDN, GSDF),1,summary.out, cred=cred))
 PostCovMat <- cov(cbind(Beta,Q,G,Tau_N,Tau_F, Tau_NF))
-rownames(suma) <- c("Beta", "Q", "G", "Tau_N", "Tau_NF", "Tau_F", "GSD(Tau_N)", "GDS(Tau_F)")
+rownames(suma) <- c("Beta", "Q", "G", "Tau_N", "Tau_NF", "Tau_F", "GSD(Tau_N)", "GSD(Tau_F)")
 
 }}
 

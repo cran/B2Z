@@ -192,7 +192,7 @@ function (N0, B, M, it.max, func, priors, S, v,
         C <- 700 - (max(range(L)))
         w <- exp(L + C)*ptheta/qtheta
         w <- w/sum(w)
-        Qi <- sum(1-(1-w)^M)/Nk
+        Qi <- sum(1-(1-w)^M)/M
         expfrac[k] <- Qi
         }
 

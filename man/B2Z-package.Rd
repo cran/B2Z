@@ -18,13 +18,14 @@ Denote \eqn{YN(t)} and \eqn{YF(t)} by the observed log concentrations at time \e
 
 Several options as prior distribution for \eqn{Beta}, \eqn{Q} and \eqn{G} are provided. In the independent model, the priors distributions for \eqn{TauN} and \eqn{TauF} are inverse gamma distributions; and in the dependent model the prior joint distribution of \eqn{TauN}, \eqn{TauNF} and \eqn{TauF} is the Inverse Wishart Distribution.
 
-Four sample methods are available: Gibbs with Metropolis step, Incremental Mixture Importance Sampling (IMIS), Metropolis and Sampling Importance Resampling (SIR). The user can fit the Bayesian two-zone model by using the function \code{B2ZM} and in this function
+Four sample methods are available: Gibbs with Metropolis step, Incremental Mixture Importance Sampling (IMIS), Metropolis and Sampling Importance Resampling (SIR). In addition, 
+estimation using the Bayesian central limit theorem (Laplace approximation) is also available (BCLT).  The user can fit the Bayesian two-zone model by using the function \code{B2ZM} and in this function
 specifying which sampler method to use OR using one of the functions: 
 \code{B2ZM_GIBBS}, \code{B2ZM_IMIS}, \code{B2ZM_METROP} and \code{B2ZM_SIR}. In any case, the output is valid as an input for the functions \code{summary} and \code{plot}.
 }
 
 \seealso{
-\code{\link{B2ZM}, \link{B2ZM_IMIS}, \link{B2ZM_GIBBS}, \link{B2ZM_METROP}, \link{B2ZM_SIR} }
+\code{\link{B2ZM}, \link{B2ZM_BCLT}, \link{B2ZM_IMIS}, \link{B2ZM_GIBBS}, \link{B2ZM_METROP}, \link{B2ZM_SIR} }
 }
 
 
