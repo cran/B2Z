@@ -1,113 +1,125 @@
-IMISB2zm <-
-function (N0, B, M, it.max, func, priors, S, v, 
+##############################################
+#This function implements the IMIS algorithm #
+##############################################
+
+IMISB2zm <- function (N0, B, M, it.max, S, v, 
               tauN_sh, tauN_sc, tauF_sh, tauF_sc,
-              VN, VF, y0, times, Y, indep, cred)
-    {
-    y = y0
-    T <- length(times)
-    rtol = 1e-06
-    atol = 1e-06
-    tcrit = NULL
-    jacfunc = NULL
-    verbose = FALSE
-    dllname = NULL
-    hmin = 0
-    hmax = Inf
-    initpar = NULL
-    ModelInit = NULL
-    rho = environment(func)
-    Nglobal = NULL
-    options(warn = 0)
-    samp.values <- matrix(nrow = N0, ncol = 3)
-    for (i in 1:3) {
-        split1 <- unlist(strsplit(priors[i], "\\("))
-        name.dist <- split1[1]
-        par.dist <- unlist(strsplit(split1, "\\)"))[2]
-        x <- paste("r", name.dist, "(", N0, ",", par.dist, ")", 
-            sep = "")
-        write(x, file = "foo")
-        samp.values[, i] <- eval(source("foo"))$value
-    }
-    unlink("foo")
-    Beta <- samp.values[, 1]
-    Q <- samp.values[, 2]
-    G <- samp.values[, 3]
-    if (length(which(Beta < 0)) > 0) {
-        stop("Negative values for Beta were generated from its prior distribution. Try other prior distribution.")
-    }
-    if (length(which(Q < 0)) > 0) {
-        stop("Negative values for Q were generated from its prior distribution. Try other prior distribution.")
-    }
-    if (length(which(G < 0)) > 0) {
-        stop("Negative values for G were generated from its prior distribution. Try other prior distribution.")
-    }
-    modY <- numeric()
-    modY[seq(1, 2 * nrow(Y), by = 2)] <- Y[, 1]
-    modY[seq(2, 2 * nrow(Y), by = 2)] <- Y[, 2]
-    s1 <- seq(4, (3 * nrow(rbind(c(0, 0), Y)) - 1), by = 3)
-    s2 <- seq(5, (3 * nrow(rbind(c(0, 0), Y))), by = 3)
-    index <- numeric()
-    index[seq(1, 2 * length(s1), by = 2)] <- s1
-    index[seq(2, 2 * length(s2), by = 2)] <- s2
-    index2 <- c(s1, s2)
-    S <- as.numeric(S)
-    Saux <- S[2]
-    S[2] <- S[3]
-    S[3] <- Saux
-    n <- nrow(Y)
-    two_n <- 2 * n
-    Y1 <- c(Y[1:n, 1], Y[1:n, 2])
+              VN, VF, times, Y, indep, cred,
+              indBeta, aBeta, bBeta,
+              indQ, aQ, bQ, indG, aG, bG){
 
-    total_it <- N0 + B*it.max
+   n <- length(times)
 
-    fromC <- .Call("call_imis_initial", y, times, func, rtol, 
-        atol, rho, tcrit, jacfunc, ModelInit, as.integer(verbose), 
-        hmin, hmax, as.integer(N0), as.integer(index), as.integer(index2), 
-        as.integer(two_n), as.integer(n), as.integer(indep), 
-        Y1, modY, VN, VF, Beta, Q, G, v, S, tauN_sh, tauN_sc, 
-        tauF_sh, tauF_sc, as.integer(total_it), PACKAGE = "B2Z")
+   cat("1 - Initial Stage...\n\n")
+   flush.console()
 
+   Betas <- switch(indBeta, runif(N0+2, aBeta, bBeta), rgamma(N0+2, aBeta, bBeta), rexp(N0+2, aBeta),
+                rnorm(N0+2, aBeta, bBeta), rt(N0+2, aBeta, bBeta), rweibull(N0+2, aBeta, bBeta),
+                rchisq(N0+2, aBeta, bBeta), rcauchy(N0+2, aBeta, bBeta), dlnorm(N0+2, aBeta, bBeta))
+
+   Qs <- switch(indQ, runif(N0+2, aQ, bQ), rgamma(N0+2, aQ, bQ), rexp(N0+2, aQ),
+                rnorm(N0+2, aQ, bQ), rt(N0+2, aQ, bQ), rweibull(N0+2, aQ, bQ),
+                rchisq(N0+2, aQ, bQ), rcauchy(N0+2, aQ, bQ), dlnorm(N0+2, aQ, bQ))
+
+   Gs <- switch(indG, runif(N0+2, aG, bG), rgamma(N0+2, aG, bG), rexp(N0+2, aG),
+                rnorm(N0+2, aG, bG), rt(N0+2, aG, bG), rweibull(N0+2, aG, bG),
+                rchisq(N0+2, aG, bG), rcauchy(N0+2, aG, bG), dlnorm(N0+2, aG, bG))
+
+
+   if (length(which(Betas < 0)) > 0) {
+      stop("Negative values for Beta were generated from its prior distribution. Try another prior distribution.")
+   }
+   if (length(which(Qs < 0)) > 0) {
+      stop("Negative values for Q were generated from its prior distribution. Try another prior distribution.")
+   }
+   if (length(which(Gs < 0)) > 0) {
+      stop("Negative values for G were generated from its prior distribution. Try another prior distribution.")
+   }
+
+   rangeBeta <- range(Betas)
+   rangeQ <- range(Qs)
+   rangeG <- range(Gs)
+
+   posmax <- which.max(Betas)
+   posmin <- which.min(Betas)
+   Betas <- Betas[-c(posmax,posmin)]
    
-    L <- fromC[[N0+4]] 
-
-    C <- 700 - (max(range(L)))
-    w <- exp(L+C)/sum(exp(L + C))
-
-    ur <- unlist(fromC[1:N0])
-    T <- length(times)
-    logCN <- t(log(matrix(ur[seq(2,length(ur),by=3)],T,N0))[-1,])
-    logCF <- t(log(matrix(ur[seq(3,length(ur),by=3)],T,N0))[-1,])
-
-    tauN <- fromC[[N0+1]]
-    tauF <- fromC[[N0+2]]
-    tauNF <- fromC[[N0+3]]    
-    pSig <- fromC[[N0+5]]
-    parms <- cbind(Beta,Q,G)
-    ptheta <- prior.theta(cbind(Beta,Q,G), priors)*pSig
+   posmax <- which.max(Qs)
+   posmin <- which.min(Qs)
+   Qs <- Qs[-c(posmax,posmin)]
+  
+   posmax <- which.max(Gs)
+   posmin <- which.min(Gs)
+   Gs <- Gs[-c(posmax,posmin)]
 
 
-#Importance Sampling Stage
-          dimens <- ifelse(indep,5,6)
+   if(indep){
+      TauNs <- 1/rgamma(N0, tauN_sh, tauN_sc)
+      TauFs <- 1/rgamma(N0, tauF_sh, tauF_sc)
+      PARAMS <- cbind(Betas, Qs, Gs, TauNs, TauFs)
+   }
+   else{
+      Taus <- sapply(1:N0, riwish, v = v, S = S)
+      TauNs <- Taus[1,]
+      TauFs <- Taus[2,]
+      TauNFs <- Taus[3,]
+      PARAMS <- cbind(Betas, Qs, Gs, TauNs, TauFs, TauNFs)
+   }
+ 
+   L <- apply_pb(PARAMS, 1, loglik, indep = indep, Y = Y, times = times, VN = VN, VF = VF, n = n)
 
-    expfrac <- numeric()
-    k <- 0
-    theta <- list()  
-    SigmaK <- list()
+   C <- 700 - (max(range(L)))
+   w <- L + C
+   w <- exp(w)
+   w <- w/sum(w)
 
-    if(indep)
-      {
-      thetas    <- cbind(log(Beta), log(Q), log(G), sqrt(tauN), sqrt(tauF))
-      }
-    else
-      {
-      ch.sig <- t(apply(cbind(tauN,tauF,tauNF),1,chol.sigma))
-      thetas    <- cbind(log(Beta), log(Q), log(G), ch.sig)
-      }
+   params_transf <- matrix(0,nrow(PARAMS),ncol(PARAMS))
+   params_transf[,1] <- log((PARAMS[,1] - rangeBeta[1])/(rangeBeta[2] - PARAMS[,1]))
+   params_transf[,2] <- log((PARAMS[,2] - rangeQ[1])/(rangeQ[2] - PARAMS[,2]))
+   params_transf[,3] <- log((PARAMS[,3] - rangeG[1])/(rangeG[2] - PARAMS[,3]))
+   params_transf[,4:5] <- log(PARAMS[,4:5])
 
-    Qi <- 0
+   if(!indep){
+      params_transf[,6] <- log((PARAMS[,6] + sqrt(PARAMS[,4]*PARAMS[,5]))/(sqrt(PARAMS[,4]*PARAMS[,5])-PARAMS[,6]))
+   } 
 
-    while(Qi < (1-exp(-1)) & k <= it.max )
-      {
+   ptheta <- exp(apply_pb( params_transf, 1, logprior_transf, indep = indep, Y = Y, times = times, VN = VN, VF =VF, 
+                  n = n, indBeta = indBeta, aBeta = aBeta, bBeta = bBeta, rangeBeta = rangeBeta, 
+                  indQ = indQ, aQ = aQ, bQ = bQ, rangeQ = rangeQ, indG = indG, aG = aG, bG = bG, 
+                  rangeG = rangeG, S = S, v = v, tauN_sh = tauN_sh, tauN_sc = tauN_sc, 
+                  tauF_sh = tauF_sh, tauF_sc = tauF_sc))
+
+   cat("\nOK!\n\n")
+   flush.console()
+
+ 
+  #Algorithm Progression 
+   plot(0,0, xlab = "Iteration", main = "IMIS Algorithm Progression", ylab ="Expected fraction of unique points", 
+         pch = 19, ylim=c(0,1), xlim = c(0, 1.2*it.max), axes=F)
+
+   box()
+   abline(h=1-1/exp(1), lwd=2, col = "red")
+   axis(2,at=(1-1/exp(1)), labels = "0.632")
+   axis(1, at=seq(it.max,1,l=it.max/3), labels = c("Max",
+   round(seq(it.max,1,l=it.max/3)[-1],1)))
+   abline(v=it.max, lwd=2, col = "blue")
+
+   #Importance Sampling Stage
+   cat("\n2 - Importance Sampling Stage...  ")
+   flush.console()
+   dimens <- ifelse(indep, 5, 6)
+
+   expfrac <- numeric()
+   expfrac[1] <- 0
+   k <- 0
+   theta <- list()  
+   SigmaK <- list()
+
+   thetas <- params_transf
+   
+   Qi <- 0
+
+   while(Qi < (1-exp(-1)) & k <= (it.max-1) ){
       #a
       k <- k + 1
       Nk <- N0 + B*k
@@ -128,46 +140,32 @@ function (N0, B, M, it.max, func, priors, S, v,
 
       #c
 
-      newBeta <- exp(newinput[,1])
-      newQ <- exp(newinput[,2])
-      newG <- exp(newinput[,3])
+      newBetas <-  (rangeBeta[1] + rangeBeta[2]*exp(newinput[,1]) )/ (1 + exp(newinput[,1]))
+      newQs <- (rangeQ[1] + rangeQ[2]*exp(newinput[,2]) )/ (1 + exp(newinput[,2]))
+      newGs <- (rangeG[1] + rangeG[2]*exp(newinput[,3]) )/ (1 + exp(newinput[,3]))
+      newtauNs <- exp(newinput[,4])
+      newtauFs <- exp(newinput[,5])
 
-      if(indep) 
-         {
-         newtauN <- newinput[,4]^2
-         newtauF <- newinput[,5]^2
-         newtauNF <- rep(0,B)
-         }
-      else  
-         {
-         newtauN <- newinput[,4]^2
-         newtauF <- newinput[,5]^2 + newinput[,6]^2
-         newtauNF <- newinput[,4]*newinput[,5]
-         }
+      PARAMS <- cbind(newBetas, newQs, newGs, newtauNs, newtauFs)
+
+      if(!indep){
+         newtauNFs <- exp(0.5*(newinput[,4]+newinput[,5]))*(exp(newinput[,6])-1)/(1+exp(newinput[,6]))
+         PARAMS <- cbind(PARAMS, newtauNFs)
+      }
 
 
-        fromC <- .Call("call_loglik_imis", y, times, func, rtol, 
-        atol, rho, tcrit, jacfunc, ModelInit, as.integer(verbose), 
-        hmin, hmax, as.integer(B), as.integer(index), as.integer(index2), 
-        as.integer(two_n), as.integer(n), as.integer(indep), 
-        Y1, modY, VN, VF, newBeta, newQ, newG, newtauN, newtauF, newtauNF, 
-        v, S, tauN_sh, tauN_sc, tauF_sh, tauF_sc, as.integer(total_it), PACKAGE = "B2Z")
+      newL <- apply(PARAMS, 1, loglik, indep = indep, Y = Y, times = times, VN = VN, VF = VF, n = n)
+      L <- c(L, newL)
 
- 
-        newL <- fromC[[B+2]] 
 
-        ur <- unlist(fromC[1:B])
-        newlogCN <- t(log(matrix(ur[seq(2,length(ur),by=3)],T,B))[-1,])
-        newlogCF <- t(log(matrix(ur[seq(3,length(ur),by=3)],T,B))[-1,])
+      newptheta <- exp(apply(newinput, 1, logprior_transf, indep = indep, Y = Y, times = times, VN = VN, VF =VF, 
+                  n = n, indBeta = indBeta, aBeta = aBeta, bBeta = bBeta, rangeBeta = rangeBeta, 
+                  indQ = indQ, aQ = aQ, bQ = bQ, rangeQ = rangeQ, indG = indG, aG = aG, bG = bG, 
+                  rangeG = rangeG, S = S, v = v, tauN_sh = tauN_sh, tauN_sc = tauN_sc, 
+                  tauF_sh = tauF_sh, tauF_sc = tauF_sc))
 
-        L <- c(L, newL)
-        logCN <- rbind(logCN,newlogCN)
-        logCF <- rbind(logCF,newlogCF)
 
-        newpSig <- fromC[[B+1]] 
-        newptheta <- prior.theta(cbind(newBeta,newQ,newG), priors)*newpSig
-
-        ptheta <- c(ptheta, newptheta)
+      ptheta <- c(ptheta, newptheta)
         if(k==1) 
           {
           invsigma <- solve(SigmaK[[1]])
@@ -193,88 +191,76 @@ function (N0, B, M, it.max, func, priors, S, v,
         w <- exp(L + C)*ptheta/qtheta
         w <- w/sum(w)
         Qi <- sum(1-(1-w)^M)/M
-        expfrac[k] <- Qi
+        expfrac[k+1] <- Qi
+   
+        segments((k-1), expfrac[k], k, expfrac[k+1])
+        points(k, expfrac[k+1],pch=19)
         }
 
-
-    
-
-    V.hat <- sum((Nk*w-1)^2)/Nk
-    U.hat <-    -log(prod(w^(w/log(Nk))))
-    Q.hat <- sum(1-(1-w)^M)
-    ESS <- 1/sum(w^2)
-    maxw <- max(w)
-    options(warn=-1)
-    draw_index <- sample(1:Nk, M, replace=TRUE, prob=w)
-  
-    options(warn=0)
-    if(k==(it.max+1)){
-    warning("Expected fraction of unique points < (1-1/e)")}
-
-    Betaout <- exp(thetas[draw_index,1])
-    Qout <- exp(thetas[draw_index,2])
-    Gout <- exp(thetas[draw_index,3])
-    TauNout <- thetas[draw_index,4]^2
-    logCNout <- logCN[draw_index,] 
-    logCFout <- logCF[draw_index,] 
-    wout <- w[draw_index]
-
-    if(indep)
-     {
-     TauNFout <- 0
-     TauFout <- thetas[draw_index,5]^2 
-     }
-    else 
-     {
-     TauNFout <- thetas[draw_index,4]*thetas[draw_index,5]
-     TauFout <- thetas[draw_index,5]^2 + thetas[draw_index,6]^2
-     }
-
-
-    Dbar <- -2*mean((L[draw_index]))
-
+   cat("   OK!\n\n")
+   flush.console()
    
-    fromC <- .Call("call_loglik_imis", y, times, func, rtol, 
-    atol, rho, tcrit, jacfunc, ModelInit, as.integer(verbose), 
-    hmin, hmax, as.integer(1), as.integer(index), as.integer(index2), 
-    as.integer(two_n), as.integer(n), as.integer(indep), 
-    Y1, modY, VN, VF, mean(Betaout), mean(Qout), mean(Gout), 
-    mean(TauNout), mean(TauFout), mean(TauNFout), v, S, tauN_sh, 
-    tauN_sc, tauF_sh, tauF_sc, as.integer(total_it), PACKAGE = "B2Z")
-        
-    Dthetabar <- -2*fromC[[3]]
+   cat("3 - Resample Stage...")
+   flush.console()
 
-    pD = Dbar - Dthetabar
-    DIC = pD + Dbar
+   V.hat <- sum((Nk*w-1)^2)/Nk
+   U.hat <-    -log(prod(w^(w/log(Nk))))
+   Q.hat <- sum(1-(1-w)^M)
+   ESS <- 1/sum(w^2)
+   maxw <- max(w)
+   options(warn=-1)
+   draw_index <- sample(1:Nk, M, replace=TRUE, prob=w)
+  
+   options(warn=0)
+   if(k==(it.max+1)){
+   warning("Expected fraction of unique points < (1-1/e)")}
+
+   Betaout <-  (rangeBeta[1] + rangeBeta[2]*exp(thetas[draw_index,1]) )/ (1 + exp(thetas[draw_index,1]))
+   Qout <- (rangeQ[1] + rangeQ[2]*exp(thetas[draw_index,2]) )/ (1 + exp(thetas[draw_index,2]))
+   Gout <- (rangeG[1] + rangeG[2]*exp(thetas[draw_index,3]) )/ (1 + exp(thetas[draw_index,3]))
+   TauNout <- exp(thetas[draw_index,4])
+   TauFout <- exp(thetas[draw_index,5])
+
+   parms <- c(mean(Betaout),mean(Qout),mean(Gout), mean(TauNout), mean(TauFout))
+
+   if(!indep){
+      TauNFout <- exp(0.5*(thetas[draw_index,4]+thetas[draw_index,5]))*(exp(thetas[draw_index,6])-1)/(1+exp(thetas[draw_index,6]))
+      parms <- c(parms, mean(TauNFout))
+      PARAMS <- cbind(PARAMS, newtauNFs)
+   }
 
   
-   
-    if(indep)
-     {
-     r <- list(Beta=Betaout, Q=Qout, G=Gout, tauN=TauNout,
-          tauNF = NULL, tauF=TauFout, logCN=logCNout, logCF=logCFout, 
-          Y=Y, DIC=DIC, pD=pD, Dbar=Dbar, ESS=ESS, Qi=Qi, 
-          indep=indep,y0=y0,times=times, cred=cred, 
+   wout <- w[draw_index]
+
+   Dbar <- -2*mean((L[draw_index]))
+   Dthetabar <- -2*loglik(parms, indep, Y, times, VN, VF, n)
+
+   pD = Dbar - Dthetabar
+   DIC = pD + Dbar
+
+   if(indep){
+      r <- list(Beta=Betaout, Q=Qout, G=Gout, tauN=TauNout,
+          tauNF = NULL, tauF=TauFout, Y=Y, DIC=DIC, pD=pD, Dbar=Dbar, ESS=ESS, Qi=Qi, 
+          indep=indep, times=times, cred=cred, 
           expfrac=expfrac, V.hat=V.hat, U.hat=U.hat, Q.hat=Q.hat, 
-          maxw=maxw, w=wout)
-     }
-    else 
-     {
-     r <- list(Beta=Betaout, Q=Qout, G=Gout, tauN=TauNout,
-          tauNF = TauNFout, tauF=TauFout, logCN=logCNout, 
-          logCF=logCFout, Y=Y,
+          maxw=maxw, w=wout, VN = VN, VF = VF)
+   }
+   else {
+      r <- list(Beta=Betaout, Q=Qout, G=Gout, tauN=TauNout,
+          tauNF = TauNFout, tauF=TauFout, Y=Y,
           DIC=DIC, ESS=ESS, pD=pD, Dbar=Dbar, Qi=Qi, indep=indep,
-          y0=y0,times=times, cred=cred, 
+          times=times, cred=cred, 
           expfrac=expfrac, V.hat=V.hat, U.hat=U.hat, Q.hat=Q.hat, 
-          maxw=maxw, w=wout)
-     }
+          maxw=maxw, w=wout, VN = VN, VF = VF)
+   }
 
-   
-    cat("=|\n")
-    flush.console()
+   cat("   OK!\n")
+   flush.console()
+   cat("\nDONE!\n")
+   flush.console()
 
-    attr(r, "class") <- "imis"
+   attr(r, "class") <- "imis"
  
-    return(r)
-    }
+   return(r)
+   }
 

@@ -1,3 +1,8 @@
+####################################
+#This functions obtains the prior  #
+#distribution speficied by the user#
+####################################
+
 which.dist <- function(dist)
   {
   split1 <- unlist(strsplit(dist,  "\\(" ))

@@ -1,10 +1,9 @@
-#########################################
-#This function computes                 #
-#the log of a function proportional to  #
-#the posterior distribution             #
-#########################################
+#############################################
+#This function computes                     #
+#the log  of the prior distribution of theta#
+#############################################
 
-logpost <- function(parms, indep, Y, times, VN, VF, n, 
+logprior <- function(parms, indep, Y, times, VN, VF, n, 
                     indBeta, aBeta, bBeta, indQ, aQ, bQ, 
                     indG, aG, bG, S, v, 
                     tauN_sh, tauN_sc, tauF_sh, tauF_sc){
@@ -40,7 +39,7 @@ logpost <- function(parms, indep, Y, times, VN, VF, n,
      W <- matrix(c(parms[4],parms[6],parms[6],parms[5]), 2, 2)
      lpvar <- logdiwish(W, v, S)
    }
-  lp <-  loglik(parms, indep, Y, times, VN, VF, n) + lpBeta + lpQ + lpG + lpvar
+  lp <- lpBeta + lpQ + lpG + lpvar
 
   return(lp)
 }

@@ -1,3 +1,8 @@
+##########################################
+#This function computes the log of a     #
+#inverse Wishart distribution            #
+##########################################
+
 logdiwish <-
 function(W, v, S)
    {

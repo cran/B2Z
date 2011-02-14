@@ -1,3 +1,8 @@
+#######################################################
+#This function checks whether the prior distribution  #
+#for Beta is valid.                                   #
+#######################################################
+
 verifying_prior_Beta<-function(ind,a,b)
   {
   if(ind==1)

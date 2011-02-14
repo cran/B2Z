@@ -1,3 +1,8 @@
+#######################################################
+#This function checks whether the prior distribution  #
+#for Q is valid.                                      #
+#######################################################
+
 verifying_prior_Q<-function(ind,a,b)
   {
   if(ind==1)

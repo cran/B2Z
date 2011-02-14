@@ -1,3 +1,11 @@
+################################################################
+#This function computes the density of a multivariate          #
+#normal distribution. I could have used dmvnorm, but           #
+#to avoid spending time in checking whether the covaiance      #
+#matrix is positive definite, I got the part that only computes#
+#the density, since when I use this function at the IMIS       # #algorithm, the covariance matrix is surely positive definite  #
+################################################################
+
 dmnorm_mod <- function (x, mean = rep(0, d), d, varcov, invvarcov) 
     {
     x <- matrix(x, 1, d)

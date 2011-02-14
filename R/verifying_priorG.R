@@ -1,3 +1,7 @@
+#######################################################
+#This function checks whether the prior distribution  #
+#for G is valid.                                      #
+#######################################################
 verifying_prior_G<-function(ind,a,b)
   {
   if(ind==1)

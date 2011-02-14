@@ -1,3 +1,8 @@
+####################################
+#This function checks whether a    #
+#given matrix is positive definite #
+####################################
+
 is.pos.def <- function(mat)
  {
  val = try(chol(mat), silent = TRUE)

@@ -1,3 +1,7 @@
+############################################
+#This function randomly generates a value  #
+#from a Wishart distribution               #
+############################################
 rwish <-
 function (v, S) 
 {
