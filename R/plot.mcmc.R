@@ -13,7 +13,7 @@ plot.mcmc <- function(x,...){
 
    alpha <- (100 - x$cred)/100
    q <- apply(r,1,quantile,prob=c(alpha/2,0.5,1-alpha/2))
-   plot(x$times, Y[,1], ylim =c(0.8*min(Y[,1]), max(Y[,1])+3/7*abs(diff(range(Y[,1])))),
+   plot(x$times, Y[,1], ylim =c(0.95*min(c(Y[,1],q[1,1:n])), 1.35*max(c(Y[,1],q[3,1:n]))),
        type="l", xlab="Time (minutes)", ylab= expression(log(mg/m^3)), main="Log concentrations at near field")
    lines(x$times,  q[1,1:n],col="red",lty = 2, lwd = 2)
    lines(x$times,  q[2,1:n],col="blue", lwd=3, lty = 3)
@@ -23,7 +23,7 @@ plot.mcmc <- function(x,...){
    devAskNewPage(ask=TRUE)  
 
 
-   plot(x$times, Y[,2], ylim =c(0.8*min(Y[,2]), max(Y[,2])+3/7*abs(diff(range(Y[,2])))),
+   plot(x$times, Y[,2], ylim =c(0.95*min(c(Y[,2],q[1,(n+1):(2*n)])), 1.35*max(c(Y[,2],q[3,(n+1):(2*n)]))),
        type="l", xlab="Time (minutes)", ylab= expression(log(mg/m^3)), main="Log concentrations at far field")
    lines(x$times,  q[1,(n+1):(2*n)], col="red",lty = 2, lwd = 2)
    lines(x$times,  q[2,(n+1):(2*n)], col="blue", lwd=3, lty = 3)
