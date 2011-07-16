@@ -106,10 +106,12 @@ Methods defined for B2ZM_IMIS object are \code{summary} and \code{plot}.
 }
 \references{
    
-Zhang, Y., Banerjee, S., Yang,R., Lungu,C. and Ramachandran, G. (2009).  Bayesian Modeling of Exposure and Airflow Using Two-Zone Models. \emph{The Annals of Occupational Hygiene},
-\bold{53}, 409-424.   \url{ http://www.biostat.umn.edu/~sudiptob/ResearchPapers/ZBYLR.pdf}
+Monteiro, J. V. D., Banerjee, S. and Ramachandran, G. (2011). B2Z: An R Package for Bayesian Two-Zone Models. \emph{Journal of Statistical Software} 43 (2) 1--23. \url{http://www.jstatsoft.org/v43/i02/}
+  
+Raftery, A. E. and Bao, L. (2009).   Estimating and Projecting Trends in HIV/AIDS Generalized Epidemics Using Incremental Mixture Importance Sampling.  \url{http://www.stat.washington.edu/research/reports/2009/tr560.pdf}
 
-Raftery, A. E. and Bao, L. (2009).   Estimating and Projecting Trends in HIV/AIDS Generalized Epidemics Using Incremental Mixture Importance Sampling.  \url{http://www.stat.washington.edu/research/reports/2009/tr560.pdf}.
+Zhang, Y., Banerjee, S., Yang,R., Lungu,C. and Ramachandran, G. (2009).  Bayesian Modeling of Exposure and Airflow Using Two-Zone Models. \emph{The Annals of Occupational Hygiene},
+\bold{53}, 409-424. \url{ http://www.biostat.umn.edu/~sudiptob/ResearchPapers/ZBYLR.pdf}
 }
 \note{
 In the Examples section, \code{N0}, \code{B}, \code{M} and \code{it.max} are small just for a quick demonstration. We suggest that \code{N0} = 6,000; \code{B} = 600; \code{M}= 3,000  and \code{it.max} greater than 10.

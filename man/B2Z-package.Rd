@@ -33,8 +33,8 @@ specifying which sampler method to use OR using one of the functions:
 \tabular{ll}{
 Package: \tab B2Z\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2009-12-23\cr
+Version: \tab 1.4\cr
+Date: \tab 2011-07-16\cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 }
@@ -45,6 +45,10 @@ Joao Vitor Dias Monteiro, Sudipto Banerjee and Gurumurthy Ramachandran.
 Maintainer: Joao Vitor Dias Monteiro <monte092@umn.edu>
 }
 \references{
+Monteiro, J. V. D., Banerjee, S. and Ramachandran, G. (2011). B2Z: An R Package for Bayesian Two-Zone Models. \emph{Journal of Statistical Software} 43 (2) 1--23. \url{http://www.jstatsoft.org/v43/i02/}
+  
+Raftery, A. E. and Bao, L. (2009).   Estimating and Projecting Trends in HIV/AIDS Generalized Epidemics Using Incremental Mixture Importance Sampling.  \url{http://www.stat.washington.edu/research/reports/2009/tr560.pdf}
+
 Zhang, Y., Banerjee, S., Yang,R., Lungu,C. and Ramachandran, G. (2009).  Bayesian Modeling of Exposure and Airflow Using Two-Zone Models. \emph{The Annals of Occupational Hygiene},
-\bold{53}, 409-424. \url{ http://www.biostat.umn.edu/~sudiptob/ResearchPapers/ZBYLR.pdf}   
+\bold{53}, 409-424. \url{ http://www.biostat.umn.edu/~sudiptob/ResearchPapers/ZBYLR.pdf}
 }

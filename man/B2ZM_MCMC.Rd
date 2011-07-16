@@ -112,9 +112,10 @@ Methods defined for B2ZM_MCMC object are \code{summary} and \code{plot}.
 }
 \references{
   
+Monteiro, J. V. D., Banerjee, S. and Ramachandran, G. (2011). B2Z: An R Package for Bayesian Two-Zone Models. \emph{Journal of Statistical Software} 43 (2) 1--23. \url{http://www.jstatsoft.org/v43/i02/}
+  
 Zhang, Y., Banerjee, S., Yang,R., Lungu,C. and Ramachandran, G. (2009).  Bayesian Modeling of Exposure and Airflow Using Two-Zone Models. \emph{The Annals of Occupational Hygiene},
-\bold{53}, 409-424. \url{ http://www.biostat.umn.edu/~sudiptob/ResearchPapers/ZBYLR.pdf}    
-
+\bold{53}, 409-424. \url{ http://www.biostat.umn.edu/~sudiptob/ResearchPapers/ZBYLR.pdf}
 }
 \note{
 In the Examples section, \code{NUpd} and \code{m} are small just for a quick demonstration. We suggest that \code{NUpd} be greater than 10,000 and \code{m} be around 4,000.

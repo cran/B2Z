@@ -1,0 +1,20 @@
+citHeader("To cite B2Z in publications use:")
+
+citEntry(entry = "Article",
+  title        = "{B2Z}: An {R} Package for Bayesian Two-Zone Models",
+  author       = personList(person(c("Joao", "Vitor"), "Dias Monteiro"),
+                   as.person("Sudipto Banerjee"),
+                   as.person("Gurumurthy Ramachandran")),
+  journal      = "Journal of Statistical Software",
+  year         = "2011",
+  volume       = "43",
+  number       = "2",
+  pages        = "1--23",
+  url          = "http://www.jstatsoft.org/v43/i02/",
+
+  textVersion  =
+  paste("Joao Vitor Dias Monteiro, Sudipto Banerjee, Gurumurthy Ramachandran (2011).",
+        "B2Z: An R Package for Bayesian Two-Zone Models.",
+        "Journal of Statistical Software, 43(2), 1-23.",
+        "URL http://www.jstatsoft.org/v43/i02/.")
+)
